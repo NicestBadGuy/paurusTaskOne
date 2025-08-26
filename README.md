@@ -51,11 +51,72 @@ Since your doing a REST service you don't have to bother with UI. The correctnes
 
 ### Run instructions
 
-lorem ipsum
+- IntelliJ:
+    - IntelliJ should detect it as maven project and download dependencies
+    - TaskoneApplication.java right click run (check that you have project SDK set to 21)
+    - app will start on localhost:8080
+    - http://localhost:8080/actuator/health should show status up.
+    - swagger is available on http://localhost:8080/swagger-ui/index.html
+
+CLI:
+
+~~~
+.\mvnw.cmd clean verify
+.\mvnw.cmd spring-boot:run
+~~~
 
 ### Example requests
 
-lorem ipsum
+Example from instructions
+
+~~~
+{
+    "traderId": 1,
+    "playedAmount": 5,
+    "odd": 3.2
+}
+~~~
+
+Invalid traderId validation error
+
+~~~
+{
+    "traderId": 3,
+    "playedAmount": 5,
+    "odd": 3.2
+}
+~~~
+
+Invalid odd validation error
+
+~~~
+{
+    "traderId": 1,
+    "playedAmount": 5,
+    "odd": 0.5
+}
+~~~
+
+Negative winnings validation error
+
+~~~
+{
+    "traderId": 1,
+    "playedAmount": -5,
+    "odd": 1.5
+}
+~~~
+
+Request example where 10% taxation is used. If taxationType GENERAL was used
+possibleReturnAmountAfterTax should be 900. If WINNINGS then 910.
+
+~~~
+{
+    "traderId": 1,
+    "playedAmount": 100,
+    "odd": 10
+}
+~~~
 
 ### Clarification, thought process
 
@@ -65,4 +126,31 @@ lorem ipsum
 - No authorization. Not specified in instructions.
 - I would usually format commit messages with task id, short message and longer description bellow. I'll only write
   short msg here. 
+- I don't know if I should do KISS/straight to the point or add some potentially useful implementation.
+    - EDIT: I've added validation and exception handling. Ccould do interface for validation if more than one validator
+      was done. Same for mapper.
+- Would change package hierarchy if service was complex. Ask if this is something you want an elaboration on.
+- Two approaches for implementing taxation service. One would be service for each government. One service for all
+  governments. That would come from talking to architect/analytic which would give solution based on extended business
+  information they have.
+    - Edit: I'm such a fool. TraderId determines the website which determines parameters. Sigh.
+- Need input on how taxation type (general, winnings) is determined and how taxation (rate, amount) is determined. For
+  now I am leaving it as request parameter and that they are determined in application properties.
+- It really would make more sense to determine type and mode behind the scene and not as a parameter. This really need
+  clarification in order to be done correctly.
+    - Edit: I see that you always provide both modes as a result.
+- Would need clarification about precision. How big should precision be. I've put precision to 2. But I expect that it
+  could also be more and is accumulated through time and that two would only be mapped when withdrawing.
+- I could not deduce how possibleReturnAmount differs from possibleReturnAmountBefTax.
+- Repeating calculateWinnings calling in BetMapper because of importance of this calculation. If one time call would be
+  implemented then i would have some other mechanisms to warn/remind me in case of code change.
+- I'm going to assume that odd must always be above 1?
+- there is a commented out @Valid if you want to switch to jakarta validation. If you put null in NewBetBO there will be
+  a 500, which could be handled this way (or in validation). 500 returns uuid, which can be traced to log entry to find
+  error description.
 
+### TODO:
+
+- [ ] Write integration tests
+- [ ] Write MoneyUtil tests
+- [x] complete readme (run instructions and example requests) 
