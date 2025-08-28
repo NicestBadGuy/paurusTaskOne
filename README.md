@@ -151,6 +151,6 @@ possibleReturnAmountAfterTax should be 900. If WINNINGS then 910.
 
 ### TODO:
 
-- [ ] Write integration tests
-- [ ] Write MoneyUtil tests
+- [x] Write integration tests
+- [x] Write MoneyUtil tests
 - [x] complete readme (run instructions and example requests) 
